@@ -30,4 +30,8 @@ export class SearchComponent {
   onSearch(term: string) {
     this.router.navigate(["search", { term: term }]);
   }
+
+  canDeactivate(): boolean {
+    return this.itunes.results.length > 0;
+  }
 }

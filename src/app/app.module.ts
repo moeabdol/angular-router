@@ -9,18 +9,29 @@ import { SearchComponent } from './search.component';
 import { HomeComponent } from './home.component';
 import { HeaderComponent } from './header.component';
 import { SearchService } from "./search.service";
+import { UserService } from "./user.service";
 import { ArtistComponent } from './artist.component';
 import { ArtistTrackListComponent } from './artist-track-list.component';
 import { ArtistAlbumListComponent } from './artist-album-list.component';
+import { AlwaysAuthGuard } from "./always-auth.guard";
+import { OnlyLoggedInUserGuard } from "./only-logged-in-user.guard";
+import { AlwaysAuthChildrenGuard } from "./always-auth-children.guard";
+import { UnsearchedTermGuard } from "./unsearched-term.guard";
 
 const routes: Routes = [
   { path: "", redirectTo: "home", pathMatch: "full" },
   { path: "find", redirectTo: "search" },
   { path: "home", component: HomeComponent },
-  { path: "search", component: SearchComponent },
+  {
+    path: "search",
+    component: SearchComponent,
+    canDeactivate: [UnsearchedTermGuard]
+  },
   {
     path: "artist/:artistId",
     component: ArtistComponent,
+    canActivate: [OnlyLoggedInUserGuard, AlwaysAuthGuard],
+    canActivateChild: [AlwaysAuthChildrenGuard],
     children: [
       { path: "", redirectTo: "tracks", pathMatch: "full" },
       { path: "tracks", component: ArtistTrackListComponent },
@@ -47,7 +58,14 @@ const routes: Routes = [
     FormsModule,
     RouterModule.forRoot(routes, { useHash: true })
   ],
-  providers: [SearchService],
+  providers: [
+    SearchService,
+    AlwaysAuthGuard,
+    OnlyLoggedInUserGuard,
+    UserService,
+    AlwaysAuthChildrenGuard,
+    UnsearchedTermGuard
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
